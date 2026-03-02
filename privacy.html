@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Privacy Policy — InvoCenter</title>
+    <meta name="description" content="InvoCenter Privacy Policy — how we collect, process, and protect data across Local and Cloud modes.">
+    <meta property="og:title" content="InvoCenter Privacy Policy">
+    <meta property="og:description" content="Read how InvoCenter handles your data and privacy.">
+    <meta property="og:type" content="website">
+    <link rel="icon" type="image/webp" href="assets/logo.webp">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-primary: #050a18;
+            --bg-secondary: #0a1128;
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --text-primary: #f1f5f9;
+            --text-secondary: #94a3b8;
+            --accent-blue: #3b82f6;
+        }
+
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: radial-gradient(circle at 20% 0%, #0f1f4f 0%, var(--bg-primary) 50%);
+            color: var(--text-primary);
+            line-height: 1.7;
+        }
+
+        .container { max-width: 980px; margin: 0 auto; padding: 0 24px; }
+        .top {
+            position: sticky;
+            top: 0;
+            z-index: 10;
+            backdrop-filter: blur(10px);
+            background: rgba(5, 10, 24, 0.75);
+            border-bottom: 1px solid var(--border-glass);
+        }
+
+        .top-inner {
+            height: 72px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            color: var(--text-primary);
+            text-decoration: none;
+            font-weight: 700;
+            display: inline-flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .brand img { width: 32px; height: 32px; }
+
+        .btn {
+            color: white;
+            text-decoration: none;
+            background: var(--accent-blue);
+            padding: 10px 16px;
+            border-radius: 10px;
+            font-weight: 600;
+        }
+
+        main { padding: 48px 0 72px; }
+
+        .card {
+            background: rgba(10, 17, 40, 0.88);
+            border: 1px solid var(--border-glass);
+            border-radius: 16px;
+            padding: 32px;
+        }
+
+        h1 { margin-top: 0; font-size: clamp(2rem, 4vw, 2.6rem); }
+        h2 { margin-top: 36px; font-size: 1.25rem; }
+        h3 { margin-top: 20px; font-size: 1rem; }
+        p, li { color: var(--text-secondary); }
+        a { color: #93c5fd; }
+        ul { margin-top: 8px; }
+
+        .meta {
+            color: var(--text-secondary);
+            font-size: 0.92rem;
+            margin-bottom: 20px;
+        }
+
+        footer {
+            margin-top: 48px;
+            padding-top: 24px;
+            border-top: 1px solid var(--border-glass);
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+    </style>
+</head>
+<body>
+    <header class="top">
+        <div class="container top-inner">
+            <a href="./index.html" class="brand">
+                <img src="assets/logo.webp" alt="InvoCenter">
+                <span>InvoCenter</span>
+            </a>
+            <a href="./index.html" class="btn">Back to Home</a>
+        </div>
+    </header>
+
+    <main>
+        <div class="container">
+            <article class="card">
+                <h1>Privacy Policy</h1>
+                <p class="meta"><strong>Effective Date:</strong> February 15, 2026 &nbsp;•&nbsp; <strong>Last Updated:</strong> March 2, 2026 &nbsp;•&nbsp; <strong>Version:</strong> 1.1.0</p>
+
+                <p>
+                    This Privacy Policy explains how InvoCenter ("the Application", "we", "us", or "our") handles personal and business data.
+                    InvoCenter supports two storage modes: <strong>Local (SQLite)</strong> and <strong>Cloud (Supabase)</strong>.
+                </p>
+
+                <h2>1. Data We Collect</h2>
+                <ul>
+                    <li>Account data: username, email, hashed password, role, session tokens.</li>
+                    <li>Business data: company profile, customers, products, invoices, payments, tax and discount settings.</li>
+                    <li>Operational data: payment audit logs, email send history, public invoice access logs.</li>
+                    <li>Optional local diagnostics: desktop crash diagnostics only when enabled by user.</li>
+                </ul>
+
+                <h2>2. Data We Do Not Collect</h2>
+                <ul>
+                    <li>No ad-tracking SDKs.</li>
+                    <li>No analytics trackers.</li>
+                    <li>No sale of personal or business data.</li>
+                </ul>
+
+                <h2>3. How Data Is Stored</h2>
+                <h3>Local Mode (SQLite)</h3>
+                <p>Data stays on your device unless you explicitly use sharing/email features.</p>
+
+                <h3>Cloud Mode (Supabase)</h3>
+                <p>
+                    Data is stored in your configured Supabase project over HTTPS/TLS.
+                    You control project region and configuration. Supabase details: <a href="https://supabase.com/privacy" target="_blank" rel="noopener">supabase.com/privacy</a>.
+                </p>
+
+                <h2>4. How Data Is Used</h2>
+                <p>
+                    Data is used only to provide core product functionality: authentication, invoice generation,
+                    payment tracking, reporting, backup/export, and optional user-enabled features such as cloud sync,
+                    SMTP email sending, and public invoice sharing.
+                </p>
+
+                <h2>5. Third-Party Services</h2>
+                <ul>
+                    <li><strong>Supabase</strong> — only when Cloud mode is enabled.</li>
+                    <li><strong>Your SMTP provider</strong> — only when you configure email delivery.</li>
+                    <li><strong>Google Fonts</strong> — for font delivery on web pages.</li>
+                </ul>
+
+                <h2>6. Security Measures</h2>
+                <ul>
+                    <li>Bcrypt password hashing.</li>
+                    <li>Secure token storage with platform-provided secure storage.</li>
+                    <li>TLS for data in transit.</li>
+                    <li>Optional encrypted exports (AES-256-GCM).</li>
+                    <li>Role-based permissions and row-level data controls in cloud mode.</li>
+                </ul>
+
+                <h2>7. Your Privacy Rights</h2>
+                <p>
+                    Depending on your jurisdiction, you may have rights of access, correction, deletion,
+                    portability, restriction, and objection (including GDPR/CCPA rights).
+                    You can manage or export your data directly from InvoCenter.
+                </p>
+
+                <h2>8. Data Retention</h2>
+                <ul>
+                    <li>Local mode: retained on-device until you delete or uninstall.</li>
+                    <li>Cloud mode: retained in your Supabase project until removed by you.</li>
+                    <li>Optional diagnostic data: local-only and user-clearable.</li>
+                </ul>
+
+                <h2>9. Contact</h2>
+                <p>
+                    For privacy requests or questions: <a href="mailto:support@invocenter.app">support@invocenter.app</a><br>
+                    We aim to respond to data protection requests within 30 days.
+                </p>
+
+                <footer>
+                    Full policy source is maintained in the product documentation and reflected here for public policy hosting.
+                </footer>
+            </article>
+        </div>
+    </main>
+</body>
+</html>
