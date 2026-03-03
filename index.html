@@ -10,10 +10,14 @@
     <meta property="og:description" content="Create, manage & send professional invoices across every platform. Built for businesses that demand precision.">
     <meta property="og:image" content="assets/logo.webp">
     <meta property="og:type" content="website">
+    <meta name="theme-color" content="#050a18">
     <link rel="icon" type="image/webp" href="assets/logo.webp">
+    <link rel="preload" href="assets/logo.webp" as="image">
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
+    <!-- Load only the weights actually used (trim 300 & 900 from Inter, drop JetBrains Mono entirely) -->
+    <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" onload="this.onload=null;this.rel='stylesheet'">
+    <noscript><link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap"></noscript>
     <style>
         /* ===== RESET & BASE ===== */
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
@@ -53,17 +57,40 @@
         }
 
         /* ===== GRADIENT ORBS (background decoration) ===== */
+        /* Kept as fixed but painting is isolated via contain + will-change.
+           On mobile (≤768px) orbs are hidden to save GPU memory & power. */
         .orb {
             position: fixed;
             border-radius: 50%;
-            filter: blur(120px);
             pointer-events: none;
             z-index: 0;
-            opacity: 0.4;
+            opacity: 0.35;
+            /* Promote to its own compositor layer so blur doesn't repaint the page */
+            will-change: transform;
+            contain: strict;
         }
-        .orb-1 { width: 600px; height: 600px; background: radial-gradient(circle, rgba(59,130,246,0.3), transparent 70%); top: -200px; left: -100px; }
-        .orb-2 { width: 500px; height: 500px; background: radial-gradient(circle, rgba(139,92,246,0.25), transparent 70%); top: 40%; right: -150px; }
-        .orb-3 { width: 450px; height: 450px; background: radial-gradient(circle, rgba(6,182,212,0.2), transparent 70%); bottom: -100px; left: 30%; }
+        .orb-1 {
+            width: 500px; height: 500px;
+            background: radial-gradient(circle, rgba(59,130,246,0.28) 0%, transparent 70%);
+            filter: blur(90px);
+            top: -180px; left: -80px;
+        }
+        .orb-2 {
+            width: 420px; height: 420px;
+            background: radial-gradient(circle, rgba(139,92,246,0.22) 0%, transparent 70%);
+            filter: blur(90px);
+            top: 40%; right: -120px;
+        }
+        .orb-3 {
+            width: 380px; height: 380px;
+            background: radial-gradient(circle, rgba(6,182,212,0.18) 0%, transparent 70%);
+            filter: blur(80px);
+            bottom: -80px; left: 30%;
+        }
+        /* Hide GPU-heavy orbs on low-power mobile devices */
+        @media (max-width: 768px) {
+            .orb { display: none; }
+        }
 
         /* ===== LAYOUT ===== */
         .container { max-width: 1200px; margin: 0 auto; padding: 0 24px; position: relative; z-index: 1; }
@@ -296,8 +323,8 @@
             padding: 36px 28px; border-radius: var(--radius-lg);
             background: var(--gradient-card);
             border: 1px solid var(--border-glass);
-            backdrop-filter: blur(10px);
-            transition: all 0.4s ease;
+            /* Removed backdrop-filter from cards — significant GPU saving on mobile */
+            transition: transform 0.35s ease, border-color 0.35s ease, box-shadow 0.35s ease;
             position: relative; overflow: hidden;
         }
         .feature-card::before {
@@ -359,7 +386,8 @@
         .price-card {
             padding: 40px 32px; border-radius: var(--radius-lg);
             background: var(--bg-card); border: 1px solid var(--border-glass);
-            text-align: center; position: relative; transition: all 0.4s;
+            text-align: center; position: relative;
+            transition: transform 0.35s ease, box-shadow 0.35s ease;
         }
         .price-card:hover { transform: translateY(-4px); }
         .price-card.featured {
@@ -397,7 +425,8 @@
         .tech-card {
             padding: 28px; border-radius: var(--radius-md);
             background: var(--bg-glass); border: 1px solid var(--border-glass);
-            text-align: center; transition: all 0.3s;
+            text-align: center;
+            transition: border-color 0.3s, transform 0.3s;
         }
         .tech-card:hover {
             border-color: rgba(59,130,246,0.2);
@@ -431,11 +460,12 @@
             border: 1px solid rgba(59,130,246,0.15);
             position: relative; overflow: hidden;
         }
+        /* Static radial glow — no rotate animation = no continuous repaint */
         .cta-box::before {
-            content: ''; position: absolute; top: -50%; left: -50%;
-            width: 200%; height: 200%;
-            background: radial-gradient(circle at 30% 40%, rgba(59,130,246,0.08), transparent 50%);
-            animation: rotate 20s linear infinite;
+            content: ''; position: absolute; top: -30%; left: -20%;
+            width: 60%; height: 160%;
+            background: radial-gradient(ellipse, rgba(59,130,246,0.09) 0%, transparent 70%);
+            pointer-events: none;
         }
         @keyframes rotate { to { transform: rotate(360deg); } }
         .cta-box h2 {
@@ -550,12 +580,145 @@
             100% { opacity: 0; transform: translateX(-50%) translateY(14px); }
         }
 
+        /* ===== RESPECT REDUCED MOTION ===== */
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+            .fade-in { opacity: 1 !important; transform: none !important; }
+            html { scroll-behavior: auto; }
+        }
+
         /* ===== GLASSMORPHISM HIGHLIGHT CARD ===== */
         .glass-highlight {
             background: rgba(255,255,255,0.04);
             backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
             border: 1px solid rgba(255,255,255,0.08);
             border-radius: var(--radius-lg);
+        }
+
+        /* ===== FAQ ACCORDION ===== */
+        .faq-item {
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-md);
+            background: var(--bg-card);
+            margin-bottom: 12px;
+            overflow: hidden;
+        }
+        .faq-toggle {
+            width: 100%; background: none; border: none; cursor: pointer;
+            padding: 20px 24px; display: flex; align-items: center;
+            justify-content: space-between; gap: 16px;
+            color: var(--text-primary); font-family: inherit;
+            font-size: 1rem; font-weight: 600; text-align: left;
+        }
+        .faq-toggle:hover { color: var(--accent-blue); }
+        .faq-icon {
+            width: 24px; height: 24px; flex-shrink: 0;
+            border-radius: 50%; border: 1px solid var(--border-glass);
+            display: flex; align-items: center; justify-content: center;
+            transition: transform 0.3s, border-color 0.3s;
+            color: var(--text-muted); font-size: 1.1rem; line-height: 1;
+        }
+        .faq-item.open .faq-icon { transform: rotate(45deg); border-color: var(--accent-blue); color: var(--accent-blue); }
+        .faq-body {
+            max-height: 0; overflow: hidden;
+            transition: max-height 0.35s ease;
+        }
+        .faq-body p {
+            padding: 0 24px 20px;
+            color: var(--text-secondary); font-size: 0.92rem; line-height: 1.7;
+        }
+
+        /* ===== TESTIMONIALS ===== */
+        .testimonials-grid {
+            display: grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+        }
+        .testimonial-card {
+            padding: 32px 28px; border-radius: var(--radius-lg);
+            background: var(--bg-card); border: 1px solid var(--border-glass);
+            display: flex; flex-direction: column; gap: 16px;
+        }
+        .testimonial-stars { color: var(--accent-amber); letter-spacing: 2px; font-size: 0.95rem; }
+        .testimonial-text {
+            color: var(--text-secondary); font-size: 0.93rem; line-height: 1.7;
+            flex: 1;
+        }
+        .testimonial-author {
+            display: flex; align-items: center; gap: 12px;
+        }
+        .author-avatar {
+            width: 40px; height: 40px; border-radius: 50%;
+            background: var(--gradient-hero);
+            display: flex; align-items: center; justify-content: center;
+            font-weight: 700; font-size: 0.9rem; color: white; flex-shrink: 0;
+        }
+        .author-name { font-weight: 600; font-size: 0.9rem; }
+        .author-role { color: var(--text-muted); font-size: 0.78rem; }
+
+        /* ===== COMPARISON TABLE ===== */
+        .compare-table {
+            width: 100%; border-collapse: collapse; margin-top: 8px;
+        }
+        .compare-table th, .compare-table td {
+            padding: 14px 20px; text-align: center;
+            border-bottom: 1px solid var(--border-glass);
+            font-size: 0.9rem;
+        }
+        .compare-table th {
+            font-size: 0.85rem; font-weight: 700; color: var(--text-muted);
+            text-transform: uppercase; letter-spacing: 0.06em;
+            padding-bottom: 16px;
+        }
+        .compare-table th.highlighted { color: var(--accent-blue); }
+        .compare-table td:first-child { text-align: left; color: var(--text-secondary); }
+        .compare-table tr:last-child td { border-bottom: none; }
+        .compare-table .yes { color: var(--accent-emerald); font-size: 1.1rem; }
+        .compare-table .no { color: var(--text-muted); font-size: 1.1rem; }
+        .compare-table .highlighted-col {
+            background: rgba(59,130,246,0.04);
+        }
+        .compare-wrap {
+            border: 1px solid var(--border-glass);
+            border-radius: var(--radius-lg);
+            overflow: hidden;
+            background: var(--bg-card);
+        }
+
+        /* ===== NOTIFY SECTION ===== */
+        .notify-section {
+            padding: 80px 0;
+            background: var(--bg-secondary);
+        }
+        .notify-box {
+            max-width: 560px; margin: 0 auto; text-align: center;
+        }
+        .notify-box h2 { font-size: clamp(1.6rem, 3.5vw, 2.2rem); font-weight: 800; margin-bottom: 12px; letter-spacing: -0.02em; }
+        .notify-box p { color: var(--text-secondary); font-size: 0.95rem; margin-bottom: 28px; }
+        .notify-form {
+            display: flex; gap: 10px; flex-wrap: wrap; justify-content: center;
+        }
+        .notify-form input {
+            flex: 1; min-width: 220px; padding: 13px 20px; border-radius: 50px;
+            border: 1px solid var(--border-glass); background: rgba(255,255,255,0.05);
+            color: var(--text-primary); font-family: inherit; font-size: 0.95rem;
+            outline: none; transition: border-color 0.2s;
+        }
+        .notify-form input:focus { border-color: var(--accent-blue); }
+        .notify-form input::placeholder { color: var(--text-muted); }
+
+        @media (max-width: 768px) {
+            .testimonials-grid { grid-template-columns: 1fr; }
+            .compare-table th:nth-child(2), .compare-table td:nth-child(2) { display: none; }
+            .compare-table th:nth-child(4), .compare-table td:nth-child(4) { display: none; }
+            .notify-form { flex-direction: column; align-items: stretch; }
+            .notify-form input, .notify-form button { width: 100%; border-radius: 12px; }
+        }
+        @media (max-width: 480px) {
+            .cta-box { padding: 48px 24px; }
         }
     </style>
 </head>
@@ -576,6 +739,7 @@
             <ul class="nav-links" id="navLinks">
                 <li><a href="#features">Features</a></li>
                 <li><a href="#how-it-works">How It Works</a></li>
+                <li><a href="#testimonials">Reviews</a></li>
                 <li><a href="#pricing">Pricing</a></li>
                 <li><a href="#faq">FAQ</a></li>
                 <li><a href="./privacy.html">Privacy</a></li>
@@ -972,30 +1136,220 @@
             </div>
 
             <div style="max-width: 720px; margin: 0 auto;">
-                <div class="feature-card fade-in" style="margin-bottom: 16px; padding: 24px 28px;">
-                    <h3 style="font-size: 1.05rem;">Is my data private?</h3>
-                    <p style="margin-top: 8px;">Yes. By default, all your data is stored locally on your device using SQLite. Nothing leaves your computer unless you opt into Cloud Sync.</p>
+                <div class="faq-item fade-in">
+                    <button class="faq-toggle" aria-expanded="false">
+                        Is my data private?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-body">
+                        <p>Yes. By default, all your data is stored locally on your device using SQLite. Nothing leaves your computer unless you opt into Cloud Sync.</p>
+                    </div>
                 </div>
-                <div class="feature-card fade-in" style="margin-bottom: 16px; padding: 24px 28px;">
-                    <h3 style="font-size: 1.05rem;">Does it need an internet connection?</h3>
-                    <p style="margin-top: 8px;">No. InvoCenter works fully offline. You only need the internet to activate a license key or use the optional Cloud Sync feature.</p>
+                <div class="faq-item fade-in">
+                    <button class="faq-toggle" aria-expanded="false">
+                        Does it need an internet connection?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-body">
+                        <p>No. InvoCenter works fully offline. You only need the internet to activate a license key or use the optional Cloud Sync feature.</p>
+                    </div>
                 </div>
-                <div class="feature-card fade-in" style="margin-bottom: 16px; padding: 24px 28px;">
-                    <h3 style="font-size: 1.05rem;">Can I use it on multiple PCs?</h3>
-                    <p style="margin-top: 8px;">Yes. Pro Desktop and Cloud Sync licenses allow activation on up to 3 devices with the same license key.</p>
+                <div class="faq-item fade-in">
+                    <button class="faq-toggle" aria-expanded="false">
+                        Can I use it on multiple PCs?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-body">
+                        <p>Yes. Pro Desktop and Cloud Sync licenses allow activation on up to 3 devices with the same license key.</p>
+                    </div>
                 </div>
-                <div class="feature-card fade-in" style="margin-bottom: 16px; padding: 24px 28px;">
-                    <h3 style="font-size: 1.05rem;">What's the difference between Free and Pro?</h3>
-                    <p style="margin-top: 8px;">Free gives you 5 invoices/month with a small "Made with InvoCenter" watermark on PDFs. Pro removes the watermark, unlocks unlimited invoices, recurring billing, email delivery, and public invoice links.</p>
+                <div class="faq-item fade-in">
+                    <button class="faq-toggle" aria-expanded="false">
+                        What's the difference between Free and Pro?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-body">
+                        <p>Free gives you 5 invoices/month with a small "Made with InvoCenter" watermark on PDFs. Pro removes the watermark, unlocks unlimited invoices, recurring billing, email delivery, and public invoice links.</p>
+                    </div>
                 </div>
-                <div class="feature-card fade-in" style="margin-bottom: 16px; padding: 24px 28px;">
-                    <h3 style="font-size: 1.05rem;">Is Cloud Sync a subscription?</h3>
-                    <p style="margin-top: 8px;">Yes, Cloud Sync is $49/year. It adds real-time sync powered by Supabase so you can access your invoices from any device. Pro Desktop is a one-time purchase with no recurring charges.</p>
+                <div class="faq-item fade-in">
+                    <button class="faq-toggle" aria-expanded="false">
+                        Is Cloud Sync a subscription?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-body">
+                        <p>Yes, Cloud Sync is $49/year. It adds real-time sync powered by Supabase so you can access your invoices from any device. Pro Desktop is a one-time purchase with no recurring charges.</p>
+                    </div>
                 </div>
-                <div class="feature-card fade-in" style="padding: 24px 28px;">
-                    <h3 style="font-size: 1.05rem;">How do I activate my license?</h3>
-                    <p style="margin-top: 8px;">After purchasing, you'll receive a license key. Open InvoCenter → Settings → License & Plan → paste your key → Activate. That's it.</p>
+                <div class="faq-item fade-in">
+                    <button class="faq-toggle" aria-expanded="false">
+                        How do I activate my license?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-body">
+                        <p>After purchasing, you'll receive a license key. Open InvoCenter → Settings → License & Plan → paste your key → Activate. That's it.</p>
+                    </div>
                 </div>
+                <div class="faq-item fade-in">
+                    <button class="faq-toggle" aria-expanded="false">
+                        Can I export my data?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-body">
+                        <p>Yes. You can export invoices, customers, and reports to CSV and JSON at any time from the Reports screen. Your data is never locked in.</p>
+                    </div>
+                </div>
+                <div class="faq-item fade-in">
+                    <button class="faq-toggle" aria-expanded="false">
+                        What currencies and tax systems are supported?
+                        <span class="faq-icon">+</span>
+                    </button>
+                    <div class="faq-body">
+                        <p>InvoCenter supports all major currencies and lets you configure custom tax rates (VAT, GST, etc.) per invoice or globally. Amounts are stored as integer minor units for absolute precision.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Testimonials -->
+    <section id="testimonials">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+                    WHAT USERS SAY
+                </div>
+                <h2>Trusted by freelancers &amp;<br><span class="gradient-text">small businesses.</span></h2>
+            </div>
+            <div class="testimonials-grid">
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="testimonial-text">"InvoCenter replaced three different subscription tools for me. It's offline, blazing fast, and my invoices look 10× more professional than anything I had before."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">JM</div>
+                        <div>
+                            <div class="author-name">James M.</div>
+                            <div class="author-role">Freelance Web Developer</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="testimonial-text">"The one-time price is a no-brainer. I was paying $20/month for invoicing software that didn't even have half the features. InvoCenter is night and day."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">SR</div>
+                        <div>
+                            <div class="author-name">Sarah R.</div>
+                            <div class="author-role">Graphic Designer &amp; Illustrator</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card fade-in">
+                    <div class="testimonial-stars">&#9733;&#9733;&#9733;&#9733;&#9733;</div>
+                    <p class="testimonial-text">"Running a small agency, I love that the data stays on my machine. PDF generation is instant, recurring invoices save hours every month, and Cloud Sync keeps my team in sync."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar">AK</div>
+                        <div>
+                            <div class="author-name">Alex K.</div>
+                            <div class="author-role">Founder, Small Marketing Agency</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Comparison Table -->
+    <section style="background: var(--bg-secondary);">
+        <div class="container">
+            <div class="section-header fade-in">
+                <div class="section-label">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 11 12 14 22 4"/><path d="M21 12v7a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11"/></svg>
+                    COMPARISON
+                </div>
+                <h2>InvoCenter vs.<br><span class="gradient-text">subscription apps.</span></h2>
+                <p>See exactly what you're paying for — and what you're not.</p>
+            </div>
+            <div class="compare-wrap fade-in">
+                <table class="compare-table">
+                    <thead>
+                        <tr>
+                            <th style="text-align:left;">Feature</th>
+                            <th>FreshBooks</th>
+                            <th class="highlighted">InvoCenter</th>
+                            <th>Wave</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Offline / no-internet mode</td>
+                            <td class="no">&#10007;</td>
+                            <td class="yes highlighted-col">&#10003;</td>
+                            <td class="no">&#10007;</td>
+                        </tr>
+                        <tr>
+                            <td>One-time payment option</td>
+                            <td class="no">&#10007;</td>
+                            <td class="yes highlighted-col">&#10003;</td>
+                            <td class="no">&#10007;</td>
+                        </tr>
+                        <tr>
+                            <td>Unlimited invoices (paid tier)</td>
+                            <td class="yes">&#10003;</td>
+                            <td class="yes highlighted-col">&#10003;</td>
+                            <td class="yes">&#10003;</td>
+                        </tr>
+                        <tr>
+                            <td>PDF generation (no watermark)</td>
+                            <td class="yes">&#10003;</td>
+                            <td class="yes highlighted-col">&#10003;</td>
+                            <td class="yes">&#10003;</td>
+                        </tr>
+                        <tr>
+                            <td>Your data stays on your device</td>
+                            <td class="no">&#10007;</td>
+                            <td class="yes highlighted-col">&#10003;</td>
+                            <td class="no">&#10007;</td>
+                        </tr>
+                        <tr>
+                            <td>Recurring invoices</td>
+                            <td class="yes">&#10003;</td>
+                            <td class="yes highlighted-col">&#10003;</td>
+                            <td class="yes">&#10003;</td>
+                        </tr>
+                        <tr>
+                            <td>Optional cloud sync</td>
+                            <td class="yes">&#10003;</td>
+                            <td class="yes highlighted-col">&#10003;</td>
+                            <td class="yes">&#10003;</td>
+                        </tr>
+                        <tr>
+                            <td>Monthly cost (full features)</td>
+                            <td style="color: var(--accent-amber); font-weight:600;">$19+/mo</td>
+                            <td class="highlighted-col" style="color: var(--accent-emerald); font-weight:700;">$59 once</td>
+                            <td style="color: var(--accent-amber); font-weight:600;">$16+/mo</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Mobile App Notify -->
+    <section class="notify-section">
+        <div class="container">
+            <div class="notify-box fade-in">
+                <div class="section-label" style="justify-content:center; margin-bottom:16px;">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg>
+                    COMING SOON
+                </div>
+                <h2>iOS &amp; Android app<br><span class="gradient-text">on the way.</span></h2>
+                <p>A full native mobile experience for InvoCenter is in development. Drop your email and we'll notify you the moment it launches.</p>
+                <form class="notify-form" id="notifyForm">
+                    <input type="email" placeholder="your@email.com" required autocomplete="email" aria-label="Email address">
+                    <button type="submit" class="btn btn-primary">Notify Me</button>
+                </form>
             </div>
         </div>
     </section>
@@ -1023,7 +1377,7 @@
             <div class="footer-grid">
                 <div class="footer-brand">
                     <a href="#" class="nav-brand">
-                        <img src="assets/logo.webp" alt="InvoCenter" style="height:32px; width:32px;">
+                        <img src="assets/logo.webp" alt="InvoCenter" loading="lazy" style="height:32px; width:32px;">
                         <span>InvoCenter</span>
                     </a>
                     <p>Professional invoice management for modern businesses. Available on the Microsoft Store and more.</p>
@@ -1061,11 +1415,30 @@
     </footer>
 
     <script>
-        // ===== NAV SCROLL =====
+        // ===== NAV SCROLL + PARALLAX (single merged, RAF-throttled listener) =====
         const navbar = document.getElementById('navbar');
+        const orb1 = document.querySelector('.orb-1');
+        const orb2 = document.querySelector('.orb-2');
+        const orb3 = document.querySelector('.orb-3');
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+
+        let rafPending = false;
         window.addEventListener('scroll', () => {
-            navbar.classList.toggle('scrolled', window.scrollY > 40);
-        });
+            if (rafPending) return;
+            rafPending = true;
+            requestAnimationFrame(() => {
+                const scrollY = window.scrollY;
+                navbar.classList.toggle('scrolled', scrollY > 40);
+
+                // Only run parallax on non-mobile (orbs hidden on mobile anyway)
+                if (!isMobile) {
+                    orb1.style.transform = `translateY(${scrollY * 0.12}px)`;
+                    orb2.style.transform = `translateY(${scrollY * -0.08}px)`;
+                    orb3.style.transform = `translateY(${scrollY * 0.06}px)`;
+                }
+                rafPending = false;
+            });
+        }, { passive: true });
 
         // ===== HAMBURGER =====
         const hamburger = document.getElementById('hamburger');
@@ -1100,9 +1473,10 @@
             entries.forEach(entry => {
                 if (entry.isIntersecting) {
                     entry.target.classList.add('visible');
+                    observer.unobserve(entry.target); // stop watching once revealed
                 }
             });
-        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+        }, { threshold: 0.08, rootMargin: '0px 0px -32px 0px' });
 
         document.querySelectorAll('.fade-in').forEach(el => observer.observe(el));
 
@@ -1121,16 +1495,37 @@
 
         // ===== CHART BAR ANIMATION (staggered) =====
         document.querySelectorAll('.chart-bar').forEach((bar, i) => {
-            bar.style.animationDelay = `${0.8 + i * 0.1}s`;
+            bar.style.animationDelay = `${0.8 + i * 0.08}s`;
         });
 
-        // ===== PARALLAX ORBS =====
-        window.addEventListener('scroll', () => {
-            const scrollY = window.scrollY;
-            document.querySelector('.orb-1').style.transform = `translateY(${scrollY * 0.15}px)`;
-            document.querySelector('.orb-2').style.transform = `translateY(${scrollY * -0.1}px)`;
-            document.querySelector('.orb-3').style.transform = `translateY(${scrollY * 0.08}px)`;
+        // ===== FAQ ACCORDION =====
+        document.querySelectorAll('.faq-item').forEach(item => {
+            const toggle = item.querySelector('.faq-toggle');
+            const body   = item.querySelector('.faq-body');
+            toggle.addEventListener('click', () => {
+                const open = item.classList.contains('open');
+                document.querySelectorAll('.faq-item.open').forEach(i => {
+                    i.classList.remove('open');
+                    i.querySelector('.faq-body').style.maxHeight = null;
+                });
+                if (!open) {
+                    item.classList.add('open');
+                    body.style.maxHeight = body.scrollHeight + 'px';
+                }
+            });
         });
+
+        // ===== NOTIFY FORM =====
+        const notifyForm = document.getElementById('notifyForm');
+        if (notifyForm) {
+            notifyForm.addEventListener('submit', function(e) {
+                e.preventDefault();
+                const btn = this.querySelector('button');
+                btn.textContent = 'Thanks! We\'ll notify you.';
+                btn.disabled = true;
+                this.querySelector('input').disabled = true;
+            });
+        }
     </script>
 </body>
 </html>
