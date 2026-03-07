@@ -1,0 +1,3 @@
+User-agent: *
+Allow: /
+Sitemap: https://invocenter.app/sitemap.xml
